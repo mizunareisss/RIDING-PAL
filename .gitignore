@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Personal ride data — parsed client-side, never committed
+*.gpx
+*.tcx
+*.fit
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs & caches
+*.log
+.cache/
+
+# Build output (if we ever add a bundler)
+node_modules/
+dist/
+build/
+
+# Claude Code local state
+.claude/
