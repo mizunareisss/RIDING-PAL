@@ -325,6 +325,112 @@
   .grad-labels { display: flex; justify-content: space-between; font-size: 9.5px; color: #8fa4c4; }
   hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; opacity: 0.6; }
 
+  /* ========== mobile quickbar: essentials-only persistent strip ========== */
+  .qb { display: none; }   /* shown via media query on narrow screens */
+  .qb-top {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .qb-btn {
+    flex: 0 0 auto;
+    width: 44px; height: 38px;
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    font: inherit; font-size: 15px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0;
+    letter-spacing: 0;
+    transition: all .15s ease;
+  }
+  .qb-play.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .qb-expand svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  #dashboard.collapsed #qbExpand { transform: none; }
+  #dashboard:not(.collapsed) #qbExpand { transform: rotate(180deg); }
+  .qb-heat {
+    flex: 1; display: flex; gap: 4px;
+    border: 1px solid var(--border);
+  }
+  .qb-heat-btn {
+    flex: 1;
+    background: transparent; color: var(--fg);
+    border: none;
+    font: inherit; font-size: 11.5px;
+    letter-spacing: 0.1em;
+    padding: 10px 6px;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .qb-heat-btn.active { color: var(--accent); background: var(--accent-dim); }
+  .qb-heat-btn + .qb-heat-btn { border-left: 1px solid var(--border); }
+
+  .qb-scrub {
+    position: relative;
+    height: 26px;
+    margin-bottom: 8px;
+    cursor: ew-resize;
+    user-select: none;
+    touch-action: none;
+  }
+  .qb-scrub-track {
+    position: absolute; left: 0; right: 0; top: 50%;
+    transform: translateY(-50%);
+    height: 3px;
+    background: rgba(0, 229, 255, 0.08);
+    overflow: hidden;
+  }
+  .qb-scrub-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s linear; }
+  .qb-scrub-thumb {
+    position: absolute; left: 0%; top: 50%;
+    width: 14px; height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+    pointer-events: none;
+    transition: transform 0.1s ease, left 0.1s linear;
+  }
+  .qb-scrub.scrubbing .qb-scrub-thumb,
+  .qb-scrub.scrubbing .qb-scrub-fill { transition: none; }
+  .qb-scrub.scrubbing .qb-scrub-thumb { transform: translate(-50%, -50%) scale(1.3); }
+
+  .qb-elev {
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .qb-elev-svg {
+    width: 100%; height: 32px;
+    display: block;
+  }
+  .qb-elev-val {
+    position: absolute;
+    right: 2px; top: -1px;
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    padding: 0 2px;
+    background: linear-gradient(to right, transparent, var(--panel) 30%);
+    pointer-events: none;
+  }
+  .qb-elev-val #qbEle { color: var(--fg); font-weight: 500; }
+  .qb-elev-u { margin-left: 2px; letter-spacing: 0.1em; }
+
+  .qb-readout {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .qb-vitals { display: flex; gap: 14px; }
+  .qb-vital { display: inline-flex; align-items: center; gap: 4px; }
+  .qb-hr { color: #ff6b7a; }
+  .qb-pw { color: #ffc240; }
+  .qb-ico { font-size: 13px; line-height: 1; }
+  .qb-dist { color: var(--fg); }
+  .qb-dist #qbProg { color: var(--accent); }
+
   /* ========== dashboard: cap width and allow shrinking on narrower desktops ========== */
   #dashboard {
     width: min(380px, calc(100vw - 40px));
@@ -346,9 +452,18 @@
     #dashboard {
       left: 8px; right: 8px; bottom: 8px; top: auto;
       width: auto; max-width: none;
-      max-height: min(70vh, calc(100vh - 100px));
-      padding: 14px 16px;
+      max-height: min(80vh, calc(100vh - 100px));
+      padding: 12px 14px;
     }
+    /* show the mobile quickbar */
+    .qb { display: block; }
+    /* hide dashboard title (quickbar subsumes it) and chevron (qb has its own) */
+    #dashboard > .dash-title { display: none; }
+    /* collapse hides the drawer but keeps quickbar */
+    #dashboard.collapsed > .dash-group { display: none; }
+    /* always hide items duplicated in quickbar */
+    .mobile-hide-dup { display: none !important; }
+
     /* compass moves to top-right and shrinks */
     #compass {
       width: 64px; height: 64px;
@@ -359,7 +474,7 @@
 
     /* dense rows flex tighter */
     .dash-row { gap: 6px; }
-    .dash-group { margin-bottom: 14px; }
+    .dash-group { margin-bottom: 14px; margin-top: 6px; }
     .dash-field { margin-top: 12px; }
     .dash-row-plot { gap: 12px; }
     .dash-plot { height: 46px; }
@@ -412,6 +527,41 @@
 </div>
 
 <div id="dashboard" class="panel">
+  <!-- Mobile quickbar: always visible on narrow screens, hidden on desktop -->
+  <div class="qb" aria-label="Essential controls">
+    <div class="qb-top">
+      <button id="qbPlay" class="qb-btn qb-play" aria-label="播放/暂停">▶</button>
+      <div class="qb-heat" role="group" aria-label="热区叠加">
+        <button class="qb-heat-btn active" data-qbmode="none">关</button>
+        <button class="qb-heat-btn" data-qbmode="hr">心率</button>
+        <button class="qb-heat-btn" data-qbmode="pw">功率</button>
+      </div>
+      <button id="qbExpand" class="qb-btn qb-expand" aria-label="展开 / 折叠面板">
+        <svg viewBox="0 0 10 10"><path d="M2 4l3 3 3-3"/></svg>
+      </button>
+    </div>
+    <div class="qb-scrub" id="qbScrub">
+      <div class="qb-scrub-track"><div class="qb-scrub-fill" id="qbFill"></div></div>
+      <div class="qb-scrub-thumb" id="qbThumb"></div>
+    </div>
+    <div class="qb-elev">
+      <svg class="qb-elev-svg" viewBox="0 0 140 54" preserveAspectRatio="none">
+        <path id="qbElePathFill" fill="rgba(0,229,255,0.08)" stroke="none"/>
+        <path id="qbElePath" fill="none" stroke="rgba(0,229,255,0.55)" stroke-width="0.8"/>
+        <line id="qbEleCursor" x1="0" y1="0" x2="0" y2="54" stroke="#ff2a3a" stroke-width="0.8"/>
+        <circle id="qbEleDot" cx="0" cy="54" r="1.6" fill="#ff2a3a"/>
+      </svg>
+      <span class="qb-elev-val"><span id="qbEle">---</span><span class="qb-elev-u">m</span></span>
+    </div>
+    <div class="qb-readout">
+      <span class="qb-vitals">
+        <span class="qb-vital qb-hr"><span class="qb-ico">♥</span><span id="qbHr">---</span></span>
+        <span class="qb-vital qb-pw"><span class="qb-ico">⚡</span><span id="qbPw">---</span></span>
+      </span>
+      <span class="qb-dist"><span id="qbDist">0.00</span>/<span id="qbDistTotal">0</span>km · <span id="qbProg">0.0</span>%</span>
+    </div>
+  </div>
+
   <div class="dash-title">
     <span>Ride Visualizer</span>
     <span class="dash-title-right">
@@ -425,7 +575,7 @@
   <section class="dash-group">
     <div class="dash-group-head">Controls</div>
 
-    <div class="dash-row">
+    <div class="dash-row mobile-hide-dup">
       <button id="btnPlay" class="btn-primary">▶ 开始追踪</button>
     </div>
     <div class="dash-row">
@@ -433,7 +583,7 @@
       <button id="btnView">复位视角</button>
     </div>
 
-    <div class="dash-field">
+    <div class="dash-field mobile-hide-dup">
       <div class="dash-field-label"><span>热区叠加</span></div>
       <div class="dash-row">
         <button id="btnNone" class="active">关闭</button>
@@ -474,7 +624,7 @@
   <section class="dash-group">
     <div class="dash-group-head">Telemetry</div>
 
-    <div class="dash-field">
+    <div class="dash-field mobile-hide-dup">
       <div class="dash-field-label"><span>Distance</span><span class="dash-field-val"><span id="sMove">1 / 4,000</span> pts</span></div>
       <div class="dash-big"><span id="sDist">0.00</span><span class="dash-sub">/ <span id="sDistTotal">0</span></span><span class="dash-unit">KM</span></div>
       <div class="dash-scrub" id="sProgBar">
@@ -734,10 +884,11 @@ window.addEventListener('drop', (e) => {
 /* --- dashboard collapse toggle (mobile-first: start collapsed on narrow screens) --- */
 (() => {
   const dash = document.getElementById('dashboard');
-  const toggle = document.getElementById('dashToggle');
   const mqNarrow = window.matchMedia('(max-width: 700px)');
   if (mqNarrow.matches) dash.classList.add('collapsed');
-  toggle.addEventListener('click', () => dash.classList.toggle('collapsed'));
+  const toggleFn = () => dash.classList.toggle('collapsed');
+  document.getElementById('dashToggle').addEventListener('click', toggleFn);
+  document.getElementById('qbExpand').addEventListener('click', toggleFn);
 })();
 
 /* ============================================================
@@ -1021,11 +1172,18 @@ function updateButtons() {
     document.getElementById(id).classList.remove('active');
   }
   document.getElementById({none:'btnNone', hr:'btnHR', pw:'btnPW'}[currentMode]).classList.add('active');
+  // also sync the mobile quickbar heat buttons
+  document.querySelectorAll('.qb-heat-btn').forEach((b) => {
+    b.classList.toggle('active', b.dataset.qbmode === currentMode);
+  });
 }
 
 document.getElementById('btnNone').onclick = () => setMode('none');
 document.getElementById('btnHR').onclick   = () => setMode('hr');
 document.getElementById('btnPW').onclick   = () => setMode('pw');
+document.querySelectorAll('.qb-heat-btn').forEach((b) => {
+  b.onclick = () => setMode(b.dataset.qbmode);
+});
 
 /* --- playback --- */
 let playing = false;
@@ -1077,27 +1235,23 @@ function seekTo(idx) {
   updateStats(idx);
 }
 
-/* --- scrubbable progress bar (grab DOM locally to avoid TDZ on module-scope consts) --- */
-(() => {
-  const bar = document.getElementById('sProgBar');
+/* --- scrubbable progress bars: attach identical logic to both desktop + mobile --- */
+function attachScrubber(barId) {
+  const bar = document.getElementById(barId);
+  if (!bar) return;
   let scrubbing = false;
   let activePtr = null;
-  function fromEvent(clientX) {
+  const fromEvent = (clientX) => {
     const rect = bar.getBoundingClientRect();
     const t = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     return Math.round(t * (N - 1));
-  }
+  };
   bar.addEventListener('pointerdown', (e) => {
     scrubbing = true;
     activePtr = e.pointerId;
     try { bar.setPointerCapture(e.pointerId); } catch (_) {}
     bar.classList.add('scrubbing');
-    if (playing) {
-      playing = false;
-      const btn = document.getElementById('btnPlay');
-      btn.textContent = '▶ 开始追踪';
-      btn.classList.remove('active');
-    }
+    if (playing) { playing = false; updatePlayUI(); }
     seekTo(fromEvent(e.clientX));
   });
   bar.addEventListener('pointermove', (e) => {
@@ -1112,25 +1266,34 @@ function seekTo(idx) {
   };
   bar.addEventListener('pointerup', endScrub);
   bar.addEventListener('pointercancel', endScrub);
-})();
+}
+attachScrubber('sProgBar');
+attachScrubber('qbScrub');
 
 const btnPlay = document.getElementById('btnPlay');
-btnPlay.onclick = () => {
-  playing = !playing;
+const qbPlay = document.getElementById('qbPlay');
+function updatePlayUI() {
   btnPlay.textContent = playing ? '⏸ 暂停追踪' : '▶ 开始追踪';
   btnPlay.classList.toggle('active', playing);
+  qbPlay.textContent = playing ? '⏸' : '▶';
+  qbPlay.classList.toggle('active', playing);
+}
+function togglePlay() {
+  playing = !playing;
+  updatePlayUI();
   if (playing) {
     marker.visible = true;
     ring.visible = true;
   }
-};
+}
+btnPlay.onclick = togglePlay;
+qbPlay.onclick = togglePlay;
 
 document.getElementById('btnReset').onclick = () => {
   playing = false;
   progress = 0;
   passedIdx = -1;
-  btnPlay.textContent = '▶ 开始追踪';
-  btnPlay.classList.remove('active');
+  updatePlayUI();
   marker.visible = false;
   ring.visible = false;
   applyTrailOverlay();
@@ -1162,8 +1325,20 @@ const sEleMin = document.getElementById('sEleMin');
 const sEleMax = document.getElementById('sEleMax');
 const eleCursor = document.getElementById('eleCursor');
 const eleDot = document.getElementById('eleDot');
+// mobile quickbar readouts
+const qbDist = document.getElementById('qbDist');
+const qbDistTotal = document.getElementById('qbDistTotal');
+const qbProg = document.getElementById('qbProg');
+const qbFill = document.getElementById('qbFill');
+const qbThumb = document.getElementById('qbThumb');
+const qbHr = document.getElementById('qbHr');
+const qbPw = document.getElementById('qbPw');
+const qbEle = document.getElementById('qbEle');
+const qbEleCursor = document.getElementById('qbEleCursor');
+const qbEleDot = document.getElementById('qbEleDot');
 
 sDistTotal.textContent = (DATA.stats.distTotal/1000).toFixed(2);
+qbDistTotal.textContent = (DATA.stats.distTotal/1000).toFixed(1);
 const HR_MAX = DATA.stats.hrMax || 200;
 const PW_MAX = DATA.stats.wMax  || 400;
 sHrRange.textContent = `${DATA.stats.hrMin || 0} / ${HR_MAX} bpm`;
@@ -1190,6 +1365,9 @@ sEleMax.textContent = `max ${DATA.stats.yMax.toFixed(0)} m`;
   df += `L ${vbW} ${vbH} Z`;
   document.getElementById('elePath').setAttribute('d', d);
   document.getElementById('elePathFill').setAttribute('d', df);
+  // same path works for the quickbar sparkline (same viewBox)
+  document.getElementById('qbElePath').setAttribute('d', d);
+  document.getElementById('qbElePathFill').setAttribute('d', df);
 })();
 
 function updateStats(i) {
@@ -1200,16 +1378,26 @@ function updateStats(i) {
   const hr  = DATA.hr[i] || 0;
   const pw  = DATA.w[i] || 0;
 
+  const progStr = (prog * 100).toFixed(2) + '%';
+  const progLabel = (prog * 100).toFixed(1);
   sDist.textContent = dist.toFixed(2);
-  sProg.textContent = (prog * 100).toFixed(1);
-  sProgFill.style.width = (prog * 100).toFixed(2) + '%';
-  sProgThumb.style.left = (prog * 100).toFixed(2) + '%';
+  sProg.textContent = progLabel;
+  sProgFill.style.width = progStr;
+  sProgThumb.style.left = progStr;
   sMove.textContent = `${(i+1).toLocaleString()} / ${N.toLocaleString()}`;
   sEle.textContent = ele.toFixed(0);
   sHr.textContent  = hr || '---';
   sPw.textContent  = pw || '---';
   sHrFill.style.width = Math.min(100, (hr / HR_MAX) * 100).toFixed(1) + '%';
   sPwFill.style.width = Math.min(100, (pw / PW_MAX) * 100).toFixed(1) + '%';
+
+  // mobile quickbar mirrors
+  qbDist.textContent = dist.toFixed(2);
+  qbProg.textContent = progLabel;
+  qbFill.style.width = progStr;
+  qbThumb.style.left = progStr;
+  qbHr.textContent = hr || '---';
+  qbPw.textContent = pw || '---';
 
   // sparkline cursor
   const vbW = 140, vbH = 54, pad = 3;
@@ -1220,6 +1408,12 @@ function updateStats(i) {
   eleCursor.setAttribute('x2', cx);
   eleDot.setAttribute('cx', cx);
   eleDot.setAttribute('cy', cy);
+  // quickbar sparkline cursor + elevation readout
+  qbEleCursor.setAttribute('x1', cx);
+  qbEleCursor.setAttribute('x2', cx);
+  qbEleDot.setAttribute('cx', cx);
+  qbEleDot.setAttribute('cy', cy);
+  qbEle.textContent = ele.toFixed(0);
 }
 updateStats(0);
 
@@ -1246,8 +1440,7 @@ function animate() {
     if (progress >= N - 1) {
       progress = N - 1;
       playing = false;
-      btnPlay.textContent = '▶ 开始追踪';
-      btnPlay.classList.remove('active');
+      updatePlayUI();
     }
     const i = Math.floor(progress);
     const frac = progress - i;
