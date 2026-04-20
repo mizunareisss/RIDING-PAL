@@ -5,7 +5,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0d0d0d" />
-<title>Ride 3D · 昌平公路骑行</title>
+<title>RIDING PAL</title>
 <style>
   :root {
     --bg: #0d0d0d;
@@ -14,6 +14,7 @@
     --accent-dim: #00e5ff22;
     --magenta: #ff3ea5;
     --muted: #5d8ca8;
+    --label: #8fa8bd;
     --border: rgba(0, 229, 255, 0.20);
     --panel: rgba(10, 10, 10, 0.52);
     /* fluid base font: 13px on tiny screens → 16px on wide screens */
@@ -97,33 +98,53 @@
   .dash-group { margin-bottom: 20px; }
   .dash-group:last-child { margin-bottom: 0; }
   .dash-group-head {
-    font-size: 11.5px; letter-spacing: 0.3em; color: var(--accent);
-    text-transform: uppercase; margin-bottom: 14px;
-    padding-left: 10px; position: relative; line-height: 1;
+    font-size: 12.5px; letter-spacing: 0.34em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 14px; font-weight: 500;
+    padding-left: 12px; position: relative; line-height: 1;
   }
   .dash-group-head::before {
     content: ''; position: absolute;
     left: 0; top: 50%; transform: translateY(-50%);
-    width: 3px; height: 10px; background: var(--accent);
+    width: 3px; height: 12px; background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
   }
+
+  /* ---- shared inner card (shell for fields + gauges) ---- */
+  .dash-card {
+    background: rgba(0, 229, 255, 0.025);
+    border: 1px solid rgba(0, 229, 255, 0.10);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-top: 8px;
+  }
+  .dash-card:first-of-type { margin-top: 0; }
 
   /* ---- fields (rows inside a group) ---- */
   .dash-field { margin-top: 14px; }
   .dash-field:first-of-type { margin-top: 12px; }
+  .dash-field.dash-card { margin-top: 8px; }
+  .dash-field.dash-card:first-of-type { margin-top: 0; }
+
   .dash-field-label {
     display: flex; justify-content: space-between; align-items: baseline;
-    font-size: 11px; letter-spacing: 0.22em; color: var(--muted);
-    text-transform: uppercase; margin-bottom: 8px;
+    font-size: 11px; letter-spacing: 0.24em; color: var(--label, #8fa8bd);
+    text-transform: uppercase; margin-bottom: 8px; font-weight: 500;
   }
   .dash-field-val {
     color: var(--fg); letter-spacing: 0.1em;
     font-variant-numeric: tabular-nums;
-    font-size: 11px; text-transform: none;
+    font-size: 11px; text-transform: none; font-weight: 400;
   }
   .dash-field-foot {
     font-size: 10.5px; letter-spacing: 0.2em; color: var(--muted);
     margin-top: 8px;
   }
+
+  /* label tints per data category (so gauges read at a glance) */
+  .lab-hr  { color: #ff8a95 !important; }
+  .lab-pw  { color: #ffd26b !important; }
+  .lab-cad { color: #8dffc0 !important; }
+  .lab-sp  { color: #5de5ff !important; }
 
   /* ---- rows for buttons ---- */
   .dash-row { display: flex; gap: 6px; margin-bottom: 6px; }
@@ -137,8 +158,9 @@
     letter-spacing: 0.03em; line-height: 1;
     font-variant-numeric: tabular-nums;
   }
-  .dash-sub { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 4px; }
-  .dash-unit { font-size: 12px; color: var(--muted); letter-spacing: 0.15em; margin-left: 4px; }
+  .dash-sub { font-size: 13px; color: var(--label, #8fa8bd); font-weight: 500; margin-left: 4px; letter-spacing: 0.02em; }
+  .dash-unit { font-size: 11.5px; color: var(--muted); letter-spacing: 0.2em; margin-left: 6px; font-weight: 400; }
+  .dash-field-foot #sProg { color: var(--accent); font-weight: 500; }
 
   /* ---- bars ---- */
   .dash-bar {
@@ -151,23 +173,27 @@
   }
   .dash-fill.dash-red { background: #ff2a3a; }
   .dash-fill.dash-amber { background: #ffc03a; }
+  .dash-fill.dash-cyan { background: #00e5ff; }
+  .dash-fill.dash-green { background: #7dffb3; }
 
   /* ---- sparkline ---- */
   .dash-plot { flex: 1; height: 54px; }
 
-  /* ---- gauges (unified label style to match .dash-field-label) ---- */
-  .dash-gauges { display: flex; gap: 10px; }
+  /* ---- gauges (share the .dash-card shell) ---- */
+  .dash-gauges { display: flex; gap: 8px; margin-top: 8px; }
   .dash-gauge {
     flex: 1;
     background: rgba(0, 229, 255, 0.025);
     padding: 10px 12px;
-    border: 1px solid rgba(0, 229, 255, 0.12);
+    border: 1px solid rgba(0, 229, 255, 0.10);
+    border-radius: 6px;
   }
   .dash-gauge-label {
-    font-size: 11px; letter-spacing: 0.22em; color: var(--muted);
-    margin-bottom: 8px; text-transform: uppercase;
+    font-size: 11px; letter-spacing: 0.22em; color: var(--label, #8fa8bd);
+    margin-bottom: 8px; text-transform: uppercase; font-weight: 500;
     display: flex; justify-content: space-between;
   }
+  .dash-gauge-label .unit { color: var(--muted); font-weight: 400; letter-spacing: 0.16em; }
   .dash-gauge-val {
     font-size: 24px; line-height: 1; letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums; color: var(--fg); font-weight: 300;
@@ -175,6 +201,15 @@
   .dash-gauge-foot {
     font-size: 10.5px; letter-spacing: 0.2em; color: var(--muted); margin-top: 8px;
   }
+
+  /* ---- play/pause icons (SVG to avoid iOS emoji rendering on ⏸) ---- */
+  .pp-ic { width: 11px; height: 11px; display: inline-block; vertical-align: -1px; }
+  #btnPlay .pp-ic { margin-right: 6px; }
+  #qbPlay .pp-ic { width: 14px; height: 14px; margin: 0; }
+  #btnPlay.active .pp-ic-play,
+  #qbPlay.active .pp-ic-play { display: none; }
+  #btnPlay:not(.active) .pp-ic-pause,
+  #qbPlay:not(.active) .pp-ic-pause { display: none; }
 
   /* ---- primary action emphasis (contrast) ---- */
   .btn-primary {
@@ -419,14 +454,17 @@
 
   .qb-readout {
     display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; row-gap: 4px;
     font-size: 11.5px; letter-spacing: 0.04em;
     font-variant-numeric: tabular-nums;
     color: var(--muted);
   }
-  .qb-vitals { display: flex; gap: 14px; }
+  .qb-vitals { display: flex; gap: 12px; flex-wrap: wrap; row-gap: 4px; }
   .qb-vital { display: inline-flex; align-items: center; gap: 4px; }
   .qb-hr { color: #ff6b7a; }
   .qb-pw { color: #ffc240; }
+  .qb-cad { color: #7dffb3; }
+  .qb-sp { color: var(--accent); }
   .qb-ico { font-size: 13px; line-height: 1; }
   .qb-dist { color: var(--fg); }
   .qb-dist #qbProg { color: var(--accent); }
@@ -507,6 +545,210 @@
     .dash-scrub-thumb { width: 14px; height: 14px; }
     .rule-tick { padding-top: 12px; }
   }
+
+  /* ========== toolbox (launcher + iOS-folder-style modal) ========== */
+  /* launcher button: slot at bottom of dashboard, matches existing .btn-primary feel */
+  #btnToolbox { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  #btnToolbox .tb-ic { width: 13px; height: 13px; flex: 0 0 auto; }
+  #btnToolbox .tb-ic svg { width: 100%; height: 100%; display: block; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+
+  /* overlay: dims the page */
+  .tb-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+  .tb-overlay.open { display: flex; opacity: 1; }
+
+  /* glassmorphic card */
+  .tb-card {
+    position: relative;
+    width: min(520px, 100%);
+    max-height: calc(100vh - 48px);
+    background: rgba(18, 22, 28, 0.62);
+    border: 1px solid rgba(0, 229, 255, 0.22);
+    border-radius: 18px;
+    padding: 22px 22px 20px;
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 40px rgba(0, 229, 255, 0.08) inset,
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.96);
+    transition: transform 0.22s ease;
+  }
+  .tb-overlay.open .tb-card { transform: scale(1); }
+
+  .tb-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tb-title {
+    font-size: 12.5px; letter-spacing: 0.32em;
+    color: var(--accent); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tb-back {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer;
+    width: 26px; height: 24px; padding: 0;
+    display: none; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+  .tb-back.show { display: inline-flex; }
+  .tb-back:hover { border-color: var(--accent); color: var(--accent); }
+  .tb-back svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .tb-close {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer;
+    width: 28px; height: 26px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+  .tb-close:hover { border-color: var(--accent); color: var(--accent); }
+  .tb-close svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+  .tb-body { overflow-y: auto; padding-right: 2px; }
+  .tb-body::-webkit-scrollbar { width: 3px; }
+  .tb-body::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.25); }
+
+  /* grid of tiles */
+  .tb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+  }
+  .tb-tile {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px;
+    aspect-ratio: 1 / 1;
+    padding: 14px 10px;
+    background: rgba(0, 229, 255, 0.035);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    color: var(--fg);
+    font: inherit;
+    text-align: center;
+    transition: all 0.15s ease;
+  }
+  .tb-tile:hover {
+    border-color: var(--accent);
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--accent);
+    box-shadow: 0 0 18px rgba(0, 229, 255, 0.2);
+  }
+  .tb-tile-ic {
+    width: 34px; height: 34px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .tb-tile-ic svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
+  .tb-tile-lab {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .tb-tile-desc {
+    font-size: 9.5px; letter-spacing: 0.08em; color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* tool detail view */
+  .tb-tool-head {
+    font-size: 14px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--fg); margin-bottom: 4px;
+  }
+  .tb-tool-sub {
+    font-size: 10.5px; letter-spacing: 0.18em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .tb-form { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+  .tb-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 420px) { .tb-field-row { grid-template-columns: 1fr; } }
+  .tb-field { display: flex; flex-direction: column; gap: 6px; }
+  .tb-field label {
+    font-size: 11px; letter-spacing: 0.22em; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .tb-field input {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font: inherit;
+    font-size: 18px;
+    letter-spacing: 0.05em;
+    padding: 10px 12px;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+    transition: border-color 0.15s ease;
+    border-radius: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+  .tb-field input:focus { border-color: var(--accent); }
+  .tb-field input::-webkit-outer-spin-button,
+  .tb-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .tb-field input[type=number] { -moz-appearance: textfield; }
+  .tb-hint { font-size: 10px; letter-spacing: 0.14em; color: var(--muted); }
+
+  /* zones output */
+  .tb-zones { display: flex; flex-direction: column; gap: 6px; }
+  .tb-zone {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--zone-color, var(--accent));
+    border-radius: 4px;
+  }
+  .tb-zone-tag {
+    font-size: 13px; font-weight: 500; letter-spacing: 0.1em;
+    color: var(--zone-color, var(--accent));
+  }
+  .tb-zone-lab {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  }
+  .tb-zone-lab-cn { font-size: 12px; letter-spacing: 0.1em; color: var(--fg); }
+  .tb-zone-lab-en { font-size: 9.5px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
+  .tb-zone-num {
+    text-align: right;
+    display: flex; flex-direction: column; gap: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tb-zone-bpm {
+    font-size: 13px; letter-spacing: 0.04em; color: var(--fg);
+  }
+  .tb-zone-pct {
+    font-size: 9.5px; letter-spacing: 0.1em; color: var(--muted);
+  }
+  .tb-zones-empty {
+    padding: 18px 12px; text-align: center;
+    font-size: 10.5px; letter-spacing: 0.2em; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 4px;
+  }
+
+  @media (max-width: 700px) {
+    .tb-overlay { padding: 12px; }
+    .tb-card { padding: 18px 16px 16px; border-radius: 16px; }
+    .tb-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -514,11 +756,11 @@
 
 <div id="upload">
   <div class="up-card">
-    <div class="up-title">Ride Visualizer</div>
-    <div class="up-sub">Drop a Garmin <b>GPX</b> or <b>TCX</b> file</div>
+    <div class="up-title">RIDING PAL</div>
+    <div class="up-sub">上传 <b>GPX</b> / <b>TCX</b> / <b>FIT</b> 文件</div>
     <label class="up-btn">
       <input type="file" id="fileInput" hidden
-        accept=".gpx,.tcx,.xml,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,application/octet-stream" />
+        accept=".gpx,.tcx,.fit,.xml,application/gpx+xml,application/vnd.garmin.tcx+xml,application/vnd.ant.fit,application/xml,text/xml,application/octet-stream" />
       <span>选 择 文 件</span>
     </label>
     <div class="up-hint">或拖拽到页面任意位置</div>
@@ -531,7 +773,10 @@
   <!-- Mobile quickbar: always visible on narrow screens, hidden on desktop -->
   <div class="qb" aria-label="Essential controls">
     <div class="qb-top">
-      <button id="qbPlay" class="qb-btn qb-play" aria-label="播放/暂停">▶</button>
+      <button id="qbPlay" class="qb-btn qb-play" aria-label="播放/暂停">
+        <svg class="pp-ic pp-ic-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 3l5 3-5 3z" fill="currentColor"/></svg>
+        <svg class="pp-ic pp-ic-pause" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 3h2v6H4zm4 0h2v6H8z" fill="currentColor"/></svg>
+      </button>
       <div class="qb-heat" role="group" aria-label="热区叠加">
         <button class="qb-heat-btn active" data-qbmode="none">关</button>
         <button class="qb-heat-btn" data-qbmode="hr">心率</button>
@@ -558,13 +803,15 @@
       <span class="qb-vitals">
         <span class="qb-vital qb-hr"><span class="qb-ico">♥</span><span id="qbHr">---</span></span>
         <span class="qb-vital qb-pw"><span class="qb-ico">⚡</span><span id="qbPw">---</span></span>
+        <span class="qb-vital qb-cad"><span class="qb-ico">◎</span><span id="qbCad">---</span></span>
+        <span class="qb-vital qb-sp"><span class="qb-ico">»</span><span id="qbSp">---</span></span>
       </span>
       <span class="qb-dist"><span id="qbDist">0.00</span>/<span id="qbDistTotal">0</span>km · <span id="qbProg">0.0</span>%</span>
     </div>
   </div>
 
   <div class="dash-title">
-    <span>Ride Visualizer</span>
+    <span>RIDING PAL</span>
     <span class="dash-title-right">
       <span class="dash-live"><span class="dot"></span><span>LIVE</span></span>
       <button class="dash-toggle" id="dashToggle" aria-label="折叠/展开面板" title="折叠/展开">
@@ -577,14 +824,18 @@
     <div class="dash-group-head">Controls</div>
 
     <div class="dash-row mobile-hide-dup">
-      <button id="btnPlay" class="btn-primary">▶ 开始追踪</button>
+      <button id="btnPlay" class="btn-primary">
+        <svg class="pp-ic pp-ic-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 3l5 3-5 3z" fill="currentColor"/></svg>
+        <svg class="pp-ic pp-ic-pause" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 3h2v6H4zm4 0h2v6H8z" fill="currentColor"/></svg>
+        <span id="btnPlayLabel">开始追踪</span>
+      </button>
     </div>
     <div class="dash-row">
       <button id="btnReset">重置</button>
       <button id="btnView">复位视角</button>
     </div>
 
-    <div class="dash-field mobile-hide-dup">
+    <div class="dash-field dash-card mobile-hide-dup">
       <div class="dash-field-label"><span>热区叠加</span></div>
       <div class="dash-row">
         <button id="btnNone" class="active">关闭</button>
@@ -593,7 +844,7 @@
       </div>
     </div>
 
-    <div class="dash-field">
+    <div class="dash-field dash-card">
       <div class="dash-field-label"><span>速度</span><span class="dash-field-val" id="speedVal">1.00×</span></div>
       <div class="slider-ctrl">
         <input type="range" min="1" max="200" value="40" class="slider" id="speed" />
@@ -608,7 +859,7 @@
       </div>
     </div>
 
-    <div class="dash-field">
+    <div class="dash-field dash-card">
       <div class="dash-field-label"><span>高程比例</span><span class="dash-field-val" id="vScaleVal">1.00×</span></div>
       <div class="slider-ctrl">
         <input type="range" min="1" max="40" step="1" value="12" class="slider" id="vScale" />
@@ -625,7 +876,7 @@
   <section class="dash-group">
     <div class="dash-group-head">Telemetry</div>
 
-    <div class="dash-field mobile-hide-dup">
+    <div class="dash-field dash-card mobile-hide-dup">
       <div class="dash-field-label"><span>Distance</span><span class="dash-field-val"><span id="sMove">1 / 4,000</span> pts</span></div>
       <div class="dash-big"><span id="sDist">0.00</span><span class="dash-sub">/ <span id="sDistTotal">0</span></span><span class="dash-unit">KM</span></div>
       <div class="dash-scrub" id="sProgBar">
@@ -635,7 +886,7 @@
       <div class="dash-field-foot"><span id="sProg">0.0</span>% complete</div>
     </div>
 
-    <div class="dash-field">
+    <div class="dash-field dash-card">
       <div class="dash-field-label"><span>Elevation</span><span class="dash-field-val"><span id="sEleMin">min 0</span> · <span id="sEleMax">max 0</span></span></div>
       <div class="dash-row-plot">
         <div class="dash-big"><span id="sEle">0</span><span class="dash-unit">M</span></div>
@@ -650,19 +901,68 @@
 
     <div class="dash-gauges">
       <div class="dash-gauge">
-        <div class="dash-gauge-label"><span>HR</span><span>bpm</span></div>
+        <div class="dash-gauge-label lab-hr"><span>HR</span><span class="unit">bpm</span></div>
         <div class="dash-gauge-val" id="sHr">---</div>
         <div class="dash-bar"><div class="dash-fill dash-red" id="sHrFill"></div></div>
         <div class="dash-gauge-foot" id="sHrRange">— / —</div>
       </div>
       <div class="dash-gauge">
-        <div class="dash-gauge-label"><span>Power</span><span>W</span></div>
+        <div class="dash-gauge-label lab-pw"><span>Power</span><span class="unit">W</span></div>
         <div class="dash-gauge-val" id="sPw">---</div>
         <div class="dash-bar"><div class="dash-fill dash-amber" id="sPwFill"></div></div>
         <div class="dash-gauge-foot" id="sPwRange">0 / —</div>
       </div>
     </div>
+    <div class="dash-gauges">
+      <div class="dash-gauge">
+        <div class="dash-gauge-label lab-cad"><span>Cadence</span><span class="unit">rpm</span></div>
+        <div class="dash-gauge-val" id="sCad">---</div>
+        <div class="dash-bar"><div class="dash-fill dash-cyan" id="sCadFill"></div></div>
+        <div class="dash-gauge-foot" id="sCadRange">0 / —</div>
+      </div>
+      <div class="dash-gauge">
+        <div class="dash-gauge-label lab-sp"><span>Speed</span><span class="unit">km/h</span></div>
+        <div class="dash-gauge-val" id="sSp">---</div>
+        <div class="dash-bar"><div class="dash-fill dash-green" id="sSpFill"></div></div>
+        <div class="dash-gauge-foot" id="sSpRange">0 / —</div>
+      </div>
+    </div>
   </section>
+
+  <section class="dash-group">
+    <div class="dash-group-head">Toolbox</div>
+    <div class="dash-row">
+      <button id="btnToolbox" aria-label="打开工具箱">
+        <span class="tb-ic" aria-hidden="true">
+          <svg viewBox="0 0 20 20">
+            <path d="M3 8h14v8H3z"/>
+            <path d="M7 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+            <path d="M3 11h14"/>
+            <path d="M9 10.5v1.5h2v-1.5"/>
+          </svg>
+        </span>
+        <span>工具箱</span>
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- ========== Toolbox modal (iOS-folder style) ========== -->
+<div id="toolboxOverlay" class="tb-overlay" role="dialog" aria-modal="true" aria-labelledby="tbTitleText">
+  <div class="tb-card" role="document">
+    <div class="tb-head">
+      <div class="tb-title">
+        <button class="tb-back" id="tbBack" aria-label="返回工具列表">
+          <svg viewBox="0 0 10 10"><path d="M6.5 2L3 5l3.5 3"/></svg>
+        </button>
+        <span id="tbTitleText">工具箱</span>
+      </div>
+      <button class="tb-close" id="tbClose" aria-label="关闭">
+        <svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2l-6 6"/></svg>
+      </button>
+    </div>
+    <div class="tb-body" id="tbBody"></div>
+  </div>
 </div>
 
 <div id="legend" class="panel">
@@ -744,15 +1044,25 @@ function parseGPX(text) {
       lat, lon,
       ele: getLocalNum(tp, 'ele'),
       hr:  parseInt(getLocal(tp, 'hr')) || 0,
-      w:   0,  // GPX typically carries no power
+      cad: parseInt(getLocal(tp, 'cad')) || 0, // Garmin TrackPointExtension
+      sp:  0, // GPX rarely carries speed — derived below from distance deltas
+      w:   0, // GPX typically carries no power
       d:   0,
+      t:   null,
     });
+    const timeEl = tp.getElementsByTagNameNS('*', 'time')[0];
+    if (timeEl) pts[pts.length-1].t = Date.parse(timeEl.textContent) || null;
   }
-  // cumulative distance via haversine
+  // cumulative distance + derived speed (m/s between consecutive samples)
   let cum = 0;
   for (let i = 1; i < pts.length; i++) {
-    cum += haversine(pts[i-1].lat, pts[i-1].lon, pts[i].lat, pts[i].lon);
+    const step = haversine(pts[i-1].lat, pts[i-1].lon, pts[i].lat, pts[i].lon);
+    cum += step;
     pts[i].d = cum;
+    if (pts[i].t && pts[i-1].t) {
+      const dt = (pts[i].t - pts[i-1].t) / 1000;
+      if (dt > 0) pts[i].sp = step / dt;
+    }
   }
   return pts;
 }
@@ -771,12 +1081,16 @@ function parseTCX(text) {
     const hrEl = tp.getElementsByTagNameNS('*', 'HeartRateBpm')[0];
     const hr = hrEl ? (parseInt(getLocal(hrEl, 'Value')) || 0) : 0;
     const watts = parseInt(getLocal(tp, 'Watts')) || 0;
+    // <Cadence> lives directly under Trackpoint; <Speed> under Extensions > TPX
+    const cad = parseInt(getLocal(tp, 'Cadence')) || 0;
+    const sp  = parseFloat(getLocal(tp, 'Speed')) || 0; // m/s
     const d = getLocalNum(tp, 'DistanceMeters');
     pts.push({
       lat, lon,
       ele: getLocalNum(tp, 'AltitudeMeters'),
-      hr, w: watts,
+      hr, w: watts, cad, sp,
       d: d || lastDist,
+      t: null,
     });
     if (d) lastDist = d;
   }
@@ -815,25 +1129,122 @@ function projectAndPack(points, targetN = 4000) {
   const N = pts.length;
   const x = new Float32Array(N), y = new Float32Array(N), z = new Float32Array(N);
   const hr = new Int16Array(N), w = new Int16Array(N), d = new Float32Array(N);
+  const cad = new Int16Array(N), sp = new Float32Array(N);
   let xMin=Infinity,xMax=-Infinity,yMin=Infinity,yMax=-Infinity,zMin=Infinity,zMax=-Infinity;
-  let hrMin=Infinity,hrMax=-Infinity,wMax=-Infinity;
+  let hrMin=Infinity,hrMax=-Infinity,wMax=-Infinity,cadMax=-Infinity,spMax=-Infinity;
   for (let i = 0; i < N; i++) {
     const p = pts[i];
     x[i] = p.x; y[i] = p.y; z[i] = p.z; hr[i] = p.hr; w[i] = p.w; d[i] = p.d;
+    cad[i] = p.cad || 0; sp[i] = p.sp || 0;
     if (p.x < xMin) xMin = p.x; if (p.x > xMax) xMax = p.x;
     if (p.y < yMin) yMin = p.y; if (p.y > yMax) yMax = p.y;
     if (p.z < zMin) zMin = p.z; if (p.z > zMax) zMax = p.z;
     if (p.hr > 0 && p.hr < hrMin) hrMin = p.hr;
     if (p.hr > hrMax) hrMax = p.hr;
     if (p.w  > wMax)  wMax  = p.w;
+    if (cad[i] > cadMax) cadMax = cad[i];
+    if (sp[i]  > spMax)  spMax  = sp[i];
   }
   if (!isFinite(hrMin)) hrMin = 0;
   if (hrMax < 0) hrMax = 0;
   if (wMax  < 0) wMax  = 0;
+  if (cadMax < 0) cadMax = 0;
+  if (spMax  < 0) spMax  = 0;
   return {
-    x, y, z, hr, w, d,
-    stats: { n: N, xMin, xMax, yMin, yMax, zMin, zMax, hrMin, hrMax, wMax, distTotal: d[N-1] || 0 },
+    x, y, z, hr, w, d, cad, sp,
+    stats: { n: N, xMin, xMax, yMin, yMax, zMin, zMax,
+             hrMin, hrMax, wMax, cadMax, spMax,
+             distTotal: d[N-1] || 0 },
   };
+}
+
+/* ============================================================
+ * FIT parser — Garmin's native binary format. We lazy-load a
+ * third-party parser from esm.sh the first time a .fit file
+ * is dropped so non-FIT users pay zero network cost.
+ * ============================================================ */
+function isFitBuffer(bytes) {
+  // FIT header bytes 8–11 spell ".FIT"
+  return bytes.length > 12
+    && bytes[8]  === 0x2E  // '.'
+    && bytes[9]  === 0x46  // 'F'
+    && bytes[10] === 0x49  // 'I'
+    && bytes[11] === 0x54; // 'T'
+}
+
+let _fitParserModule = null;
+async function loadFitParser() {
+  if (_fitParserModule) return _fitParserModule;
+  // fit-file-parser served as an ES module; try esm.sh first, fall back to jsdelivr.
+  const urls = [
+    'https://esm.sh/fit-file-parser',
+    'https://cdn.jsdelivr.net/npm/fit-file-parser/+esm',
+  ];
+  let lastErr = null;
+  for (const u of urls) {
+    try {
+      const mod = await import(/* @vite-ignore */ u);
+      _fitParserModule = mod.default || mod.FitParser || mod;
+      return _fitParserModule;
+    } catch (e) { lastErr = e; }
+  }
+  throw new Error('FIT 解析器加载失败: ' + (lastErr ? lastErr.message : 'unknown'));
+}
+
+async function parseFIT(buf) {
+  const FitParser = await loadFitParser();
+  const parser = new FitParser({
+    force: true,
+    speedUnit: 'm/s',           // keep native m/s; UI converts to km/h
+    lengthUnit: 'm',
+    temperatureUnit: 'celsius',
+    elapsedRecordField: false,
+    mode: 'cascade',
+  });
+  const data = await new Promise((resolve, reject) => {
+    parser.parse(buf, (err, out) => err ? reject(new Error(String(err))) : resolve(out));
+  });
+  // FIT activity structure: activity → sessions → laps → records. Flatten all records.
+  const records = [];
+  const pushFromLaps = (laps) => {
+    for (const lap of (laps || [])) {
+      for (const r of (lap.records || [])) records.push(r);
+    }
+  };
+  if (data.activity && data.activity.sessions) {
+    for (const session of data.activity.sessions) pushFromLaps(session.laps);
+  }
+  // Fallback shapes some parsers emit
+  if (!records.length && data.records) records.push(...data.records);
+  if (!records.length && data.laps) pushFromLaps(data.laps);
+
+  const pts = [];
+  let lastDist = 0;
+  for (const r of records) {
+    const lat = r.position_lat;
+    const lon = r.position_long;
+    if (!isFinite(lat) || !isFinite(lon)) continue;
+    const d = (typeof r.distance === 'number') ? r.distance : lastDist;
+    if (d) lastDist = d;
+    pts.push({
+      lat, lon,
+      ele: r.altitude || r.enhanced_altitude || 0,
+      hr:  r.heart_rate || 0,
+      w:   r.power || 0,
+      cad: r.cadence || 0,
+      sp:  r.speed || r.enhanced_speed || 0,
+      d,
+      t:   r.timestamp ? (new Date(r.timestamp)).getTime() : null,
+    });
+  }
+  if (pts.length && pts[pts.length-1].d === 0) {
+    let cum = 0;
+    for (let i = 1; i < pts.length; i++) {
+      cum += haversine(pts[i-1].lat, pts[i-1].lon, pts[i].lat, pts[i].lon);
+      pts[i].d = cum;
+    }
+  }
+  return pts;
 }
 
 /* ============================================================
@@ -851,15 +1262,25 @@ async function handleFile(file) {
     if (!file) throw new Error('未选中文件');
     if (file.size === 0) throw new Error('空文件');
     if (file.size > MAX_FILE_BYTES) {
-      throw new Error(`文件过大（${(file.size/1024/1024).toFixed(1)} MB），请选择 GPX / TCX 活动文件`);
+      throw new Error(`文件过大（${(file.size/1024/1024).toFixed(1)} MB），请选择 GPX / TCX / FIT 活动文件`);
     }
-    const text = await file.text();
-    const isTCX = /<TrainingCenterDatabase/i.test(text);
-    const isGPX = /<gpx[\s>]/i.test(text);
-    if (!isTCX && !isGPX) {
-      throw new Error('不是 GPX / TCX 文件，请选择 Garmin 导出的 .gpx 或 .tcx');
+    const buf = await file.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+    let points;
+    const nameLc = (file.name || '').toLowerCase();
+    if (isFitBuffer(bytes) || nameLc.endsWith('.fit')) {
+      uploadErr.textContent = '解析 FIT 文件中…';
+      points = await parseFIT(buf);
+      uploadErr.textContent = '';
+    } else {
+      const text = new TextDecoder().decode(bytes);
+      const isTCX = /<TrainingCenterDatabase/i.test(text);
+      const isGPX = /<gpx[\s>]/i.test(text);
+      if (!isTCX && !isGPX) {
+        throw new Error('不是 GPX / TCX / FIT 文件，请选择 .gpx / .tcx / .fit');
+      }
+      points = isTCX ? parseTCX(text) : parseGPX(text);
     }
-    const points = isTCX ? parseTCX(text) : parseGPX(text);
     const data = projectAndPack(points);
     uploadEl.style.opacity = '0';
     setTimeout(() => { uploadEl.style.display = 'none'; }, 260);
@@ -902,6 +1323,170 @@ window.addEventListener('drop', (e) => {
   const toggleFn = () => dash.classList.toggle('collapsed');
   document.getElementById('dashToggle').addEventListener('click', toggleFn);
   document.getElementById('qbExpand').addEventListener('click', toggleFn);
+})();
+
+/* ============================================================
+ * Toolbox — modal launcher + registry of tools.
+ * To add a new tool: append an entry to the TOOLS array below.
+ * Each tool: { id, name, desc, icon (SVG string), render(container) }.
+ * ============================================================ */
+(() => {
+  const overlay = document.getElementById('toolboxOverlay');
+  const body    = document.getElementById('tbBody');
+  const titleEl = document.getElementById('tbTitleText');
+  const backBtn = document.getElementById('tbBack');
+  const closeBtn= document.getElementById('tbClose');
+  const openBtn = document.getElementById('btnToolbox');
+
+  // -------- tool: HR zones (Karvonen) --------
+  const LS_HR = 'riding-pal:tool:hrzones:last';
+  const HR_ZONES_DEF = [
+    { tag: 'Z1', cn: '恢复',     en: 'Recovery',   lo: 50, hi: 60, color: '#4fd6ff' },
+    { tag: 'Z2', cn: '耐力',     en: 'Endurance',  lo: 60, hi: 70, color: '#00e5ff' },
+    { tag: 'Z3', cn: '节奏',     en: 'Tempo',      lo: 70, hi: 80, color: '#ffd23a' },
+    { tag: 'Z4', cn: '阈值',     en: 'Threshold',  lo: 80, hi: 90, color: '#ff7a3a' },
+    { tag: 'Z5', cn: '最大摄氧', en: 'VO2max',     lo: 90, hi: 100, color: '#ff3ea5' },
+  ];
+
+  function renderHRZones(container) {
+    // load persisted values
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(LS_HR) || '{}'); } catch(_) {}
+
+    container.innerHTML = `
+      <div class="tb-tool-head">心率区间</div>
+      <div class="tb-tool-sub">基于储备心率法 · Karvonen</div>
+      <div class="tb-form">
+        <div class="tb-field-row">
+          <div class="tb-field">
+            <label for="tbHrRest">静息心率 (bpm)</label>
+            <input id="tbHrRest" type="number" min="20" max="120" step="1" inputmode="numeric" placeholder="如 60" />
+            <div class="tb-hint">Resting HR · 典型 50–70</div>
+          </div>
+          <div class="tb-field">
+            <label for="tbHrMax">最大心率 (bpm)</label>
+            <input id="tbHrMax" type="number" min="100" max="230" step="1" inputmode="numeric" placeholder="如 185" />
+            <div class="tb-hint">经验公式：≈ 220 − 年龄</div>
+          </div>
+        </div>
+      </div>
+      <div class="tb-zones" id="tbZonesOut"></div>
+    `;
+
+    const inRest = container.querySelector('#tbHrRest');
+    const inMax  = container.querySelector('#tbHrMax');
+    const out    = container.querySelector('#tbZonesOut');
+
+    if (saved.rest != null) inRest.value = saved.rest;
+    if (saved.max  != null) inMax.value  = saved.max;
+
+    function compute() {
+      const rest = parseInt(inRest.value, 10);
+      const max  = parseInt(inMax.value, 10);
+      const ok = isFinite(rest) && isFinite(max) && rest > 0 && max > rest;
+      if (!ok) {
+        out.innerHTML = `<div class="tb-zones-empty">填写有效的静息 / 最大心率以查看区间</div>`;
+        return;
+      }
+      const hrr = max - rest;
+      out.innerHTML = HR_ZONES_DEF.map(z => {
+        const lo = Math.round(hrr * z.lo / 100 + rest);
+        const hi = Math.round(hrr * z.hi / 100 + rest);
+        return `
+          <div class="tb-zone" style="--zone-color:${z.color}">
+            <div class="tb-zone-tag">${z.tag}</div>
+            <div class="tb-zone-lab">
+              <span class="tb-zone-lab-cn">${z.cn}</span>
+              <span class="tb-zone-lab-en">${z.en}</span>
+            </div>
+            <div class="tb-zone-num">
+              <span class="tb-zone-bpm">${lo}–${hi} bpm</span>
+              <span class="tb-zone-pct">${z.lo}–${z.hi}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function persist() {
+      const rest = parseInt(inRest.value, 10);
+      const max  = parseInt(inMax.value, 10);
+      try {
+        localStorage.setItem(LS_HR, JSON.stringify({
+          rest: isFinite(rest) ? rest : null,
+          max:  isFinite(max)  ? max  : null,
+        }));
+      } catch(_) {}
+    }
+
+    inRest.addEventListener('input', () => { compute(); persist(); });
+    inMax.addEventListener('input',  () => { compute(); persist(); });
+    compute();
+  }
+
+  // ---- registry: add new tools here ----
+  const TOOLS = [
+    {
+      id: 'hr-zones',
+      name: '心率区间',
+      desc: 'Karvonen',
+      icon: `<svg viewBox="0 0 24 24"><path d="M3 13h4l2-4 3 8 2-5 2 2h5"/></svg>`,
+      render: renderHRZones,
+    },
+    // ← future tools get appended here
+  ];
+
+  // -------- view control --------
+  function renderGrid() {
+    titleEl.textContent = '工具箱';
+    backBtn.classList.remove('show');
+    body.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'tb-grid';
+    TOOLS.forEach(tool => {
+      const tile = document.createElement('button');
+      tile.className = 'tb-tile';
+      tile.type = 'button';
+      tile.setAttribute('aria-label', tool.name);
+      tile.innerHTML = `
+        <span class="tb-tile-ic" aria-hidden="true">${tool.icon}</span>
+        <span class="tb-tile-lab">${tool.name}</span>
+        ${tool.desc ? `<span class="tb-tile-desc">${tool.desc}</span>` : ''}
+      `;
+      tile.addEventListener('click', () => renderTool(tool));
+      grid.appendChild(tile);
+    });
+    body.appendChild(grid);
+  }
+
+  function renderTool(tool) {
+    titleEl.textContent = tool.name;
+    backBtn.classList.add('show');
+    body.innerHTML = '';
+    const wrap = document.createElement('div');
+    body.appendChild(wrap);
+    tool.render(wrap);
+  }
+
+  function openModal() {
+    renderGrid();
+    overlay.classList.add('open');
+    document.addEventListener('keydown', onKey);
+  }
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.removeEventListener('keydown', onKey);
+  }
+  function onKey(e) {
+    if (e.key === 'Escape') closeModal();
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  backBtn.addEventListener('click', renderGrid);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
 })();
 
 /* ============================================================
@@ -1285,10 +1870,10 @@ attachScrubber('qbScrub');
 
 const btnPlay = document.getElementById('btnPlay');
 const qbPlay = document.getElementById('qbPlay');
+const btnPlayLabel = document.getElementById('btnPlayLabel');
 function updatePlayUI() {
-  btnPlay.textContent = playing ? '⏸ 暂停追踪' : '▶ 开始追踪';
+  btnPlayLabel.textContent = playing ? '暂停追踪' : '开始追踪';
   btnPlay.classList.toggle('active', playing);
-  qbPlay.textContent = playing ? '⏸' : '▶';
   qbPlay.classList.toggle('active', playing);
 }
 function togglePlay() {
@@ -1334,6 +1919,12 @@ const sHrFill = document.getElementById('sHrFill');
 const sPwFill = document.getElementById('sPwFill');
 const sHrRange = document.getElementById('sHrRange');
 const sPwRange = document.getElementById('sPwRange');
+const sCad = document.getElementById('sCad');
+const sSp  = document.getElementById('sSp');
+const sCadFill = document.getElementById('sCadFill');
+const sSpFill  = document.getElementById('sSpFill');
+const sCadRange = document.getElementById('sCadRange');
+const sSpRange  = document.getElementById('sSpRange');
 const sEleMin = document.getElementById('sEleMin');
 const sEleMax = document.getElementById('sEleMax');
 const eleCursor = document.getElementById('eleCursor');
@@ -1346,16 +1937,23 @@ const qbFill = document.getElementById('qbFill');
 const qbThumb = document.getElementById('qbThumb');
 const qbHr = document.getElementById('qbHr');
 const qbPw = document.getElementById('qbPw');
+const qbCad = document.getElementById('qbCad');
+const qbSp  = document.getElementById('qbSp');
 const qbEle = document.getElementById('qbEle');
 const qbEleCursor = document.getElementById('qbEleCursor');
 const qbEleDot = document.getElementById('qbEleDot');
 
 sDistTotal.textContent = (DATA.stats.distTotal/1000).toFixed(2);
 qbDistTotal.textContent = (DATA.stats.distTotal/1000).toFixed(1);
-const HR_MAX = DATA.stats.hrMax || 200;
-const PW_MAX = DATA.stats.wMax  || 400;
+const HR_MAX  = DATA.stats.hrMax  || 200;
+const PW_MAX  = DATA.stats.wMax   || 400;
+const CAD_MAX = DATA.stats.cadMax || 120;
+// SP_MAX is in m/s; display in km/h via × 3.6
+const SP_MAX_MS = DATA.stats.spMax || 16;
 sHrRange.textContent = `${DATA.stats.hrMin || 0} / ${HR_MAX} bpm`;
 sPwRange.textContent = `0 / ${PW_MAX} W`;
+sCadRange.textContent = `0 / ${CAD_MAX || '—'} rpm`;
+sSpRange.textContent  = `0 / ${(SP_MAX_MS * 3.6).toFixed(1)} km/h`;
 sEleMin.textContent = `min ${DATA.stats.yMin.toFixed(0)} m`;
 sEleMax.textContent = `max ${DATA.stats.yMax.toFixed(0)} m`;
 
@@ -1390,6 +1988,9 @@ function updateStats(i) {
   const ele = DATA.y[i];
   const hr  = DATA.hr[i] || 0;
   const pw  = DATA.w[i] || 0;
+  const cad = (DATA.cad && DATA.cad[i]) || 0;
+  const spMs = (DATA.sp && DATA.sp[i]) || 0;
+  const spKmh = spMs * 3.6;
 
   const progStr = (prog * 100).toFixed(2) + '%';
   const progLabel = (prog * 100).toFixed(1);
@@ -1401,8 +2002,12 @@ function updateStats(i) {
   sEle.textContent = ele.toFixed(0);
   sHr.textContent  = hr || '---';
   sPw.textContent  = pw || '---';
+  sCad.textContent = cad || '---';
+  sSp.textContent  = spKmh > 0 ? spKmh.toFixed(1) : '---';
   sHrFill.style.width = Math.min(100, (hr / HR_MAX) * 100).toFixed(1) + '%';
   sPwFill.style.width = Math.min(100, (pw / PW_MAX) * 100).toFixed(1) + '%';
+  sCadFill.style.width = Math.min(100, (cad / Math.max(1, CAD_MAX)) * 100).toFixed(1) + '%';
+  sSpFill.style.width  = Math.min(100, (spMs / Math.max(0.1, SP_MAX_MS)) * 100).toFixed(1) + '%';
 
   // mobile quickbar mirrors
   qbDist.textContent = dist.toFixed(2);
@@ -1411,6 +2016,8 @@ function updateStats(i) {
   qbThumb.style.left = progStr;
   qbHr.textContent = hr || '---';
   qbPw.textContent = pw || '---';
+  qbCad.textContent = cad || '---';
+  qbSp.textContent  = spKmh > 0 ? spKmh.toFixed(1) : '---';
 
   // sparkline cursor
   const vbW = 140, vbH = 54, pad = 3;
