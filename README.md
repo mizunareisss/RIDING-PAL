@@ -2,7 +2,7 @@
 
 3D cycling route visualizer for Garmin **GPX / TCX** files. Drop a file onto the page and get an interactive 3D track with telemetry dashboard, path-tracking playback, heart-rate / power heatmaps, and a scrubbable timeline.
 
-> Live site: _(pending first deploy — will update after Netlify goes live)_
+**Live**: 👉 **[riding-pal.netlify.app](https://riding-pal.netlify.app)**
 
 ## Features
 
