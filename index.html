@@ -517,7 +517,8 @@
     <div class="up-title">Ride Visualizer</div>
     <div class="up-sub">Drop a Garmin <b>GPX</b> or <b>TCX</b> file</div>
     <label class="up-btn">
-      <input type="file" id="fileInput" accept=".gpx,.tcx,.xml" hidden />
+      <input type="file" id="fileInput" hidden
+        accept=".gpx,.tcx,.xml,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,application/octet-stream" />
       <span>选 择 文 件</span>
     </label>
     <div class="up-hint">或拖拽到页面任意位置</div>
@@ -842,11 +843,23 @@ const uploadEl = document.getElementById('upload');
 const fileInput = document.getElementById('fileInput');
 const uploadErr = document.getElementById('uploadErr');
 
+const MAX_FILE_BYTES = 50 * 1024 * 1024; // 50 MB — anything bigger is almost certainly not a ride file
+
 async function handleFile(file) {
   try {
     uploadErr.textContent = '';
+    if (!file) throw new Error('未选中文件');
+    if (file.size === 0) throw new Error('空文件');
+    if (file.size > MAX_FILE_BYTES) {
+      throw new Error(`文件过大（${(file.size/1024/1024).toFixed(1)} MB），请选择 GPX / TCX 活动文件`);
+    }
     const text = await file.text();
-    const points = /TrainingCenterDatabase/i.test(text) ? parseTCX(text) : parseGPX(text);
+    const isTCX = /<TrainingCenterDatabase/i.test(text);
+    const isGPX = /<gpx[\s>]/i.test(text);
+    if (!isTCX && !isGPX) {
+      throw new Error('不是 GPX / TCX 文件，请选择 Garmin 导出的 .gpx 或 .tcx');
+    }
+    const points = isTCX ? parseTCX(text) : parseGPX(text);
     const data = projectAndPack(points);
     uploadEl.style.opacity = '0';
     setTimeout(() => { uploadEl.style.display = 'none'; }, 260);
