@@ -3,6 +3,8 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0d0d0d" />
 <title>Ride 3D · 昌平公路骑行</title>
 <style>
   :root {
@@ -14,11 +16,17 @@
     --muted: #5d8ca8;
     --border: rgba(0, 229, 255, 0.20);
     --panel: rgba(10, 10, 10, 0.52);
+    /* fluid base font: 13px on tiny screens → 16px on wide screens */
+    --fs-base: clamp(13px, 0.35vw + 12.2px, 16px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: var(--fs-base); }
   html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--fg);
-    font-family: 'SF Mono', Menlo, 'JetBrains Mono', monospace; }
-  #canvas { position: fixed; inset: 0; display: block; }
+    font-family: 'SF Mono', Menlo, 'JetBrains Mono', monospace;
+    /* iOS safe areas — dashboard sits above the home indicator */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  #canvas { position: fixed; inset: 0; display: block; touch-action: none; }
   .panel {
     position: fixed;
     background: var(--panel);
@@ -28,7 +36,7 @@
     padding: 14px 16px;
     border-radius: 2px;
     box-shadow: 0 0 30px rgba(0, 229, 255, 0.08) inset;
-    font-size: 11px;
+    font-size: 12.5px;
     letter-spacing: 0.06em;
   }
   #ui { top: 20px; left: 20px; min-width: 240px; }
@@ -39,10 +47,10 @@
   /* dashboard */
   #dashboard { bottom: 20px; left: 20px; width: 380px; padding: 18px 22px; }
   .dash-title {
-    font-size: 10.5px;
+    font-size: 12.5px;
     letter-spacing: 0.32em;
     color: var(--accent);
-    opacity: 0.85;
+    opacity: 0.9;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 14px;
@@ -50,14 +58,33 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
   }
+  .dash-title-right { display: flex; align-items: center; gap: 10px; }
   .dash-title .dash-live {
-    font-size: 9px;
+    font-size: 10.5px;
     color: var(--muted);
     letter-spacing: 0.18em;
     display: flex;
     align-items: center;
     gap: 6px;
+  }
+  .dash-toggle {
+    width: 26px; height: 22px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: transform 0.25s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .dash-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .dash-toggle svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  #dashboard.collapsed .dash-toggle { transform: rotate(180deg); }
+  #dashboard.collapsed .dash-group { display: none; }
+  #dashboard.collapsed .dash-title {
+    border-bottom: none; margin-bottom: 0; padding-bottom: 0;
   }
   .dash-title .dot {
     width: 6px; height: 6px; border-radius: 50%;
@@ -70,7 +97,7 @@
   .dash-group { margin-bottom: 20px; }
   .dash-group:last-child { margin-bottom: 0; }
   .dash-group-head {
-    font-size: 10px; letter-spacing: 0.3em; color: var(--accent);
+    font-size: 11.5px; letter-spacing: 0.3em; color: var(--accent);
     text-transform: uppercase; margin-bottom: 14px;
     padding-left: 10px; position: relative; line-height: 1;
   }
@@ -85,16 +112,16 @@
   .dash-field:first-of-type { margin-top: 12px; }
   .dash-field-label {
     display: flex; justify-content: space-between; align-items: baseline;
-    font-size: 9.5px; letter-spacing: 0.22em; color: var(--muted);
+    font-size: 11px; letter-spacing: 0.22em; color: var(--muted);
     text-transform: uppercase; margin-bottom: 8px;
   }
   .dash-field-val {
     color: var(--fg); letter-spacing: 0.1em;
     font-variant-numeric: tabular-nums;
-    font-size: 10px; text-transform: none;
+    font-size: 11px; text-transform: none;
   }
   .dash-field-foot {
-    font-size: 9px; letter-spacing: 0.2em; color: var(--muted);
+    font-size: 10.5px; letter-spacing: 0.2em; color: var(--muted);
     margin-top: 8px;
   }
 
@@ -106,12 +133,12 @@
 
   /* ---- big number (hero data) ---- */
   .dash-big {
-    font-size: 26px; font-weight: 300; color: var(--fg);
+    font-size: 28px; font-weight: 300; color: var(--fg);
     letter-spacing: 0.03em; line-height: 1;
     font-variant-numeric: tabular-nums;
   }
-  .dash-sub { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 4px; }
-  .dash-unit { font-size: 11px; color: var(--muted); letter-spacing: 0.15em; margin-left: 4px; }
+  .dash-sub { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .dash-unit { font-size: 12px; color: var(--muted); letter-spacing: 0.15em; margin-left: 4px; }
 
   /* ---- bars ---- */
   .dash-bar {
@@ -137,16 +164,16 @@
     border: 1px solid rgba(0, 229, 255, 0.12);
   }
   .dash-gauge-label {
-    font-size: 9.5px; letter-spacing: 0.22em; color: var(--muted);
+    font-size: 11px; letter-spacing: 0.22em; color: var(--muted);
     margin-bottom: 8px; text-transform: uppercase;
     display: flex; justify-content: space-between;
   }
   .dash-gauge-val {
-    font-size: 22px; line-height: 1; letter-spacing: 0.02em;
+    font-size: 24px; line-height: 1; letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums; color: var(--fg); font-weight: 300;
   }
   .dash-gauge-foot {
-    font-size: 9px; letter-spacing: 0.2em; color: var(--muted); margin-top: 8px;
+    font-size: 10.5px; letter-spacing: 0.2em; color: var(--muted); margin-top: 8px;
   }
 
   /* ---- primary action emphasis (contrast) ---- */
@@ -167,8 +194,8 @@
   .rule-tick {
     position: absolute; top: 0;
     transform: translateX(-50%);
-    font-size: 8.5px; letter-spacing: 0.06em;
-    color: var(--muted); padding-top: 8px;
+    font-size: 10px; letter-spacing: 0.06em;
+    color: var(--muted); padding-top: 10px;
     white-space: nowrap;
   }
   .rule-tick::before {
@@ -203,25 +230,25 @@
     transition: all .2s ease;
   }
   .up-title {
-    font-size: 14px; letter-spacing: 0.32em; color: var(--accent);
+    font-size: 16px; letter-spacing: 0.32em; color: var(--accent);
     text-transform: uppercase; margin-bottom: 14px;
   }
   .up-sub {
-    font-size: 11px; color: var(--fg); margin-bottom: 28px;
-    letter-spacing: 0.12em; opacity: 0.85;
+    font-size: 12.5px; color: var(--fg); margin-bottom: 28px;
+    letter-spacing: 0.12em; opacity: 0.9;
   }
   .up-sub b { color: var(--accent); font-weight: 500; letter-spacing: 0.15em; }
   .up-btn {
-    display: inline-block; padding: 10px 26px;
+    display: inline-block; padding: 12px 28px;
     border: 1px solid var(--border);
     color: var(--fg); cursor: pointer;
-    letter-spacing: 0.2em; font-size: 11px;
+    letter-spacing: 0.2em; font-size: 12.5px;
     text-transform: uppercase;
     transition: all .15s ease;
     user-select: none;
   }
   .up-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-  .up-hint { font-size: 9.5px; color: var(--muted); margin-top: 18px; letter-spacing: 0.18em; }
+  .up-hint { font-size: 10.5px; color: var(--muted); margin-top: 18px; letter-spacing: 0.18em; }
   .up-err { color: #ff6b6b; font-size: 10px; margin-top: 14px; min-height: 14px; letter-spacing: 0.05em; }
   .up-drop-hint {
     position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
@@ -279,9 +306,9 @@
     background: transparent;
     color: var(--fg);
     border: 1px solid var(--border);
-    padding: 8px 10px;
+    padding: 10px 12px;
     font: inherit;
-    font-size: 10.5px;
+    font-size: 11.5px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     cursor: pointer;
@@ -297,6 +324,74 @@
   .grad { height: 8px; margin: 8px 0 4px; border-radius: 1px; border: 1px solid var(--border); }
   .grad-labels { display: flex; justify-content: space-between; font-size: 9.5px; color: #8fa4c4; }
   hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; opacity: 0.6; }
+
+  /* ========== dashboard: cap width and allow shrinking on narrower desktops ========== */
+  #dashboard {
+    width: min(380px, calc(100vw - 40px));
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  /* thin scrollbar inside the panel */
+  #dashboard::-webkit-scrollbar { width: 3px; }
+  #dashboard::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.25); }
+
+  /* ========== tablet / narrow desktop (< 960px): slightly shrink ========== */
+  @media (max-width: 960px) {
+    #dashboard { width: min(340px, calc(100vw - 24px)); left: 14px; bottom: 14px; }
+    #compass { width: 90px; height: 90px; right: 14px; bottom: 14px; }
+  }
+
+  /* ========== phone (< 700px): dashboard becomes a bottom sheet ========== */
+  @media (max-width: 700px) {
+    #dashboard {
+      left: 8px; right: 8px; bottom: 8px; top: auto;
+      width: auto; max-width: none;
+      max-height: min(70vh, calc(100vh - 100px));
+      padding: 14px 16px;
+    }
+    /* compass moves to top-right and shrinks */
+    #compass {
+      width: 64px; height: 64px;
+      top: 10px; right: 10px; bottom: auto; left: auto;
+    }
+    /* legend moves below compass on mobile if heatmap is active */
+    #legend { top: 80px; right: 10px; min-width: 150px; }
+
+    /* dense rows flex tighter */
+    .dash-row { gap: 6px; }
+    .dash-group { margin-bottom: 14px; }
+    .dash-field { margin-top: 12px; }
+    .dash-row-plot { gap: 12px; }
+    .dash-plot { height: 46px; }
+
+    /* upload card fills available width */
+    .up-card { padding: 30px 28px; min-width: 0; width: calc(100vw - 32px); max-width: 420px; }
+    .up-title { font-size: 15px; }
+    .up-drop-hint { bottom: 26px; font-size: 11px; }
+  }
+
+  /* ========== tiny phones (< 380px): squeeze everything more ========== */
+  @media (max-width: 380px) {
+    #dashboard { padding: 12px 14px; }
+    .dash-big { font-size: 24px; }
+    .dash-gauge-val { font-size: 20px; }
+    .dash-gauges { gap: 6px; }
+    .dash-gauge { padding: 8px 10px; }
+    #compass { width: 56px; height: 56px; }
+  }
+
+  /* ========== touch devices: bigger hit targets, bigger slider thumbs ========== */
+  @media (pointer: coarse) {
+    button { min-height: 38px; padding: 12px 12px; }
+    .dash-toggle { min-height: 0 !important; width: 32px; height: 28px; padding: 0; }
+    .up-btn { padding: 14px 30px; }
+    .slider { height: 4px; margin: 8px 0 6px; }
+    .slider::-webkit-slider-thumb { width: 20px; height: 20px; }
+    .slider::-moz-range-thumb { width: 20px; height: 20px; }
+    .dash-scrub { height: 28px; }
+    .dash-scrub-thumb { width: 14px; height: 14px; }
+    .rule-tick { padding-top: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -319,7 +414,12 @@
 <div id="dashboard" class="panel">
   <div class="dash-title">
     <span>Ride Visualizer</span>
-    <span class="dash-live"><span class="dot"></span><span>LIVE</span></span>
+    <span class="dash-title-right">
+      <span class="dash-live"><span class="dot"></span><span>LIVE</span></span>
+      <button class="dash-toggle" id="dashToggle" aria-label="折叠/展开面板" title="折叠/展开">
+        <svg viewBox="0 0 10 10"><path d="M2 4l3 3 3-3"/></svg>
+      </button>
+    </span>
   </div>
 
   <section class="dash-group">
@@ -630,6 +730,15 @@ window.addEventListener('drop', (e) => {
   const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
   if (f) handleFile(f);
 });
+
+/* --- dashboard collapse toggle (mobile-first: start collapsed on narrow screens) --- */
+(() => {
+  const dash = document.getElementById('dashboard');
+  const toggle = document.getElementById('dashToggle');
+  const mqNarrow = window.matchMedia('(max-width: 700px)');
+  if (mqNarrow.matches) dash.classList.add('collapsed');
+  toggle.addEventListener('click', () => dash.classList.toggle('collapsed'));
+})();
 
 /* ============================================================
  * Viz — called once a dataset has been parsed.
