@@ -251,39 +251,80 @@
   #upload {
     position: fixed; inset: 0; z-index: 100;
     background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 32px;
+    padding: 32px 20px;
     transition: opacity .3s ease;
   }
   body.dragging #upload { background: rgba(0, 229, 255, 0.05); }
-  body.dragging .up-card { border-color: var(--accent); box-shadow: 0 0 40px rgba(0, 229, 255, 0.25) inset; }
+  body.dragging .up-card-viz {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.25) inset;
+  }
+  .up-brand {
+    font-size: 22px;
+    letter-spacing: 0.42em;
+    color: var(--accent);
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+  }
+  .up-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 340px));
+    gap: 20px;
+    align-items: stretch;
+  }
   .up-card {
-    padding: 40px 54px;
-    border: 1px dashed var(--border);
+    padding: 32px 32px 28px;
+    border: 1px solid var(--border);
     background: rgba(10, 10, 10, 0.6);
     text-align: center;
-    min-width: 360px;
     transition: all .2s ease;
+    display: flex; flex-direction: column;
+    align-items: center;
   }
-  .up-title {
-    font-size: 16px; letter-spacing: 0.32em; color: var(--accent);
-    text-transform: uppercase; margin-bottom: 14px;
+  .up-card-viz { border-style: dashed; }
+  .up-card-tools { border-style: solid; }
+  .up-card:hover:not(.up-card-viz) {
+    border-color: rgba(0, 229, 255, 0.35);
+    background: rgba(10, 10, 10, 0.7);
+  }
+  .up-card-title {
+    font-size: 13px; letter-spacing: 0.36em; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 14px; font-weight: 500;
+    opacity: 0.92;
   }
   .up-sub {
-    font-size: 12.5px; color: var(--fg); margin-bottom: 28px;
-    letter-spacing: 0.12em; opacity: 0.9;
+    font-size: 12px; color: var(--fg); margin-bottom: 24px;
+    letter-spacing: 0.12em; opacity: 0.88; line-height: 1.6;
   }
   .up-sub b { color: var(--accent); font-weight: 500; letter-spacing: 0.15em; }
   .up-btn {
-    display: inline-block; padding: 12px 28px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 22px; min-width: 180px;
     border: 1px solid var(--border);
+    background: transparent;
     color: var(--fg); cursor: pointer;
     letter-spacing: 0.2em; font-size: 12.5px;
     text-transform: uppercase;
     transition: all .15s ease;
     user-select: none;
+    font-family: inherit;
   }
   .up-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-  .up-hint { font-size: 10.5px; color: var(--muted); margin-top: 18px; letter-spacing: 0.18em; }
+  .up-btn-primary { border-color: rgba(0, 229, 255, 0.45); background: rgba(0, 229, 255, 0.05); }
+  .up-btn-tools { color: var(--label, #8fa8bd); }
+  .up-btn-ic { width: 14px; height: 14px; flex: 0 0 auto; }
+  .up-hint { font-size: 10.5px; color: var(--muted); margin-top: 16px; letter-spacing: 0.18em; }
+
+  @media (max-width: 680px) {
+    .up-cards { grid-template-columns: 1fr; width: 100%; max-width: 420px; }
+    .up-card { padding: 26px 24px 22px; }
+    .up-brand { font-size: 18px; letter-spacing: 0.38em; }
+  }
   .up-err { color: #ff6b6b; font-size: 10px; margin-top: 14px; min-height: 14px; letter-spacing: 0.05em; }
   .up-drop-hint {
     position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
@@ -517,9 +558,7 @@
     .dash-row-plot { gap: 12px; }
     .dash-plot { height: 46px; }
 
-    /* upload card fills available width */
-    .up-card { padding: 30px 28px; min-width: 0; width: calc(100vw - 32px); max-width: 420px; }
-    .up-title { font-size: 15px; }
+    /* upload card fills available width (overrides handled in dedicated < 680 block) */
     .up-drop-hint { bottom: 26px; font-size: 11px; }
   }
 
@@ -744,10 +783,105 @@
     border: 1px dashed var(--border); border-radius: 4px;
   }
 
+  /* extended form controls for tire-pressure tool */
+  .tb-field select {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    padding: 10px 12px;
+    outline: none;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 45%, var(--accent) 45%, var(--accent) 55%, transparent 55%),
+                      linear-gradient(-45deg, transparent 45%, var(--accent) 45%, var(--accent) 55%, transparent 55%);
+    background-position: right 14px top 50%, right 9px top 50%;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 28px;
+  }
+  .tb-field select:focus { border-color: var(--accent); }
+  .tb-field select option { background: #0d1621; color: var(--fg); }
+  .tb-field .tb-field-sub {
+    font-size: 11px; letter-spacing: 0.08em; color: var(--accent);
+    text-transform: none; margin-left: 8px;
+  }
+  .tb-range {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 3px; background: rgba(0, 229, 255, 0.12);
+    border-radius: 2px; outline: none; padding: 0;
+    margin: 6px 0 2px;
+  }
+  .tb-range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; background: var(--accent);
+    border-radius: 50%; cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  }
+  .tb-range::-moz-range-thumb {
+    width: 14px; height: 14px; background: var(--accent);
+    border-radius: 50%; cursor: pointer; border: none;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  }
+
+  /* tire-pressure output rows */
+  .tb-press { display: flex; flex-direction: column; gap: 8px; }
+  .tb-press-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--press-color, var(--accent));
+    border-radius: 4px;
+  }
+  .tb-press-lab {
+    font-size: 13px; letter-spacing: 0.2em; font-weight: 500;
+    color: var(--press-color, var(--accent));
+    text-transform: uppercase;
+  }
+  .tb-press-num {
+    display: flex; flex-direction: column; gap: 2px;
+    font-variant-numeric: tabular-nums; text-align: right;
+    grid-column: 3;
+  }
+  .tb-press-psi {
+    font-size: 22px; font-weight: 300; color: var(--fg);
+    letter-spacing: 0.02em; line-height: 1;
+  }
+  .tb-press-psi em {
+    font-style: normal; font-size: 11px; color: var(--muted);
+    letter-spacing: 0.15em; margin-left: 3px;
+  }
+  .tb-press-bar {
+    font-size: 11px; color: var(--muted); letter-spacing: 0.1em;
+  }
+  .tb-press-meta {
+    grid-column: 2;
+    font-size: 10px; letter-spacing: 0.14em; color: var(--muted);
+    justify-self: start;
+  }
+  .tb-press-note {
+    font-size: 10.5px; letter-spacing: 0.12em; color: var(--muted);
+    margin-top: 4px; padding: 8px 10px;
+    border-left: 2px solid rgba(0, 229, 255, 0.25);
+    line-height: 1.5;
+  }
+
   @media (max-width: 700px) {
     .tb-overlay { padding: 12px; }
     .tb-card { padding: 18px 16px 16px; border-radius: 16px; }
     .tb-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+    .tb-press-row { grid-template-columns: 1fr auto; }
+    .tb-press-meta { grid-column: 1; }
+    .tb-press-num { grid-column: 2; grid-row: 1 / span 2; }
   }
 </style>
 </head>
@@ -755,16 +889,30 @@
 <canvas id="canvas"></canvas>
 
 <div id="upload">
-  <div class="up-card">
-    <div class="up-title">RIDING PAL</div>
-    <div class="up-sub">上传 <b>GPX</b> / <b>TCX</b> / <b>FIT</b> 文件</div>
-    <label class="up-btn">
-      <input type="file" id="fileInput" hidden
-        accept=".gpx,.tcx,.fit,.xml,application/gpx+xml,application/vnd.garmin.tcx+xml,application/vnd.ant.fit,application/xml,text/xml,application/octet-stream" />
-      <span>选 择 文 件</span>
-    </label>
-    <div class="up-hint">或拖拽到页面任意位置</div>
-    <div class="up-err" id="uploadErr"></div>
+  <div class="up-brand">RIDING PAL</div>
+  <div class="up-cards">
+    <div class="up-card up-card-viz">
+      <div class="up-card-title">VISUALIZER</div>
+      <div class="up-sub">上传 <b>GPX</b> / <b>TCX</b> / <b>FIT</b> 文件</div>
+      <label class="up-btn up-btn-primary">
+        <input type="file" id="fileInput" hidden
+          accept=".gpx,.tcx,.fit,.xml,application/gpx+xml,application/vnd.garmin.tcx+xml,application/vnd.ant.fit,application/xml,text/xml,application/octet-stream" />
+        <span>选 择 文 件</span>
+      </label>
+      <div class="up-hint">或拖拽到页面任意位置</div>
+      <div class="up-err" id="uploadErr"></div>
+    </div>
+    <div class="up-card up-card-tools">
+      <div class="up-card-title">TOOLBOX</div>
+      <div class="up-sub">不依赖活动文件的<b>小工具</b></div>
+      <button type="button" class="up-btn up-btn-tools" id="upToolboxBtn">
+        <svg class="up-btn-ic" viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M2 5h10v7H2zM4 5V3.5A1.5 1.5 0 0 1 5.5 2h3A1.5 1.5 0 0 1 10 3.5V5M2 8h10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <span>打 开 工 具 箱</span>
+      </button>
+      <div class="up-hint">心率区间 · 胎压计算</div>
+    </div>
   </div>
   <div class="up-drop-hint">释放以载入文件</div>
 </div>
@@ -1424,6 +1572,173 @@ window.addEventListener('drop', (e) => {
     compute();
   }
 
+  // -------- tool: Tire Pressure (SILCA-inspired) --------
+  const LS_TP = 'riding-pal:tool:tirepress:last';
+
+  // Pressure reference table: psi at 50kg per-wheel load, clincher, smooth asphalt.
+  // Width (mm) → psi. Interpolated linearly between rows.
+  const TP_TABLE = [
+    [23, 110], [25, 95], [28, 80], [30, 72], [32, 65],
+    [35, 55], [38, 45], [42, 38], [45, 32], [50, 28],
+    [55, 24], [60, 21], [65, 19], [70, 17],
+  ];
+  const TP_TIRE = {
+    clincher: { label: '外胎 (Clincher)',     coef: 1.00 },
+    tubeless: { label: '真空胎 (Tubeless)',  coef: 0.88 },
+    tubular:  { label: '管胎 (Tubular)',     coef: 1.05 },
+  };
+  const TP_SURFACE = {
+    smooth:      { label: '平整公路',  coef: 1.00 },
+    rough:       { label: '粗糙公路',  coef: 0.92 },
+    chipseal:    { label: '水洗路面',  coef: 0.86 },
+    hard_gravel: { label: '硬砂石',    coef: 0.76 },
+    soft_gravel: { label: '软砂石',    coef: 0.66 },
+    mtb:         { label: 'MTB 技术', coef: 0.52 },
+  };
+
+  function tpInterpPsi(widthMm) {
+    if (widthMm <= TP_TABLE[0][0]) return TP_TABLE[0][1];
+    if (widthMm >= TP_TABLE[TP_TABLE.length-1][0]) return TP_TABLE[TP_TABLE.length-1][1];
+    for (let i = 0; i < TP_TABLE.length - 1; i++) {
+      const [w0, p0] = TP_TABLE[i], [w1, p1] = TP_TABLE[i+1];
+      if (widthMm >= w0 && widthMm <= w1) {
+        const t = (widthMm - w0) / (w1 - w0);
+        return p0 + t * (p1 - p0);
+      }
+    }
+    return 0;
+  }
+
+  function tpCalc({ riderKg, bikeKg, widthMm, tire, surface, rearPct }) {
+    const total = riderKg + bikeKg;
+    const loadKg = total * (rearPct / 100);
+    const base = tpInterpPsi(widthMm);
+    const psi = base * (loadKg / 50) * TP_TIRE[tire].coef * TP_SURFACE[surface].coef;
+    const bar = psi / 14.5038;
+    return { psi, bar, loadKg };
+  }
+
+  function renderTirePressure(container) {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(LS_TP) || '{}'); } catch(_) {}
+    const def = Object.assign({
+      riderKg: 70, bikeKg: 9, frontMm: 30, rearMm: 30,
+      tire: 'tubeless', surface: 'rough', rearPct: 55,
+    }, saved);
+
+    container.innerHTML = `
+      <div class="tb-tool-head">真空胎胎压</div>
+      <div class="tb-tool-sub">基于 SILCA SPPC 方法论近似</div>
+      <div class="tb-form">
+        <div class="tb-field-row">
+          <div class="tb-field">
+            <label for="tpRider">体重 (kg)</label>
+            <input id="tpRider" type="number" min="30" max="150" step="0.5" inputmode="decimal" value="${def.riderKg}" />
+            <div class="tb-hint">Rider weight</div>
+          </div>
+          <div class="tb-field">
+            <label for="tpBike">车重 (kg)</label>
+            <input id="tpBike" type="number" min="5" max="25" step="0.1" inputmode="decimal" value="${def.bikeKg}" />
+            <div class="tb-hint">Bike + 装备</div>
+          </div>
+        </div>
+        <div class="tb-field-row">
+          <div class="tb-field">
+            <label for="tpFront">前胎宽度 (mm)</label>
+            <input id="tpFront" type="number" min="18" max="80" step="0.5" inputmode="decimal" value="${def.frontMm}" />
+            <div class="tb-hint">实测胎宽更准</div>
+          </div>
+          <div class="tb-field">
+            <label for="tpRear">后胎宽度 (mm)</label>
+            <input id="tpRear" type="number" min="18" max="80" step="0.5" inputmode="decimal" value="${def.rearMm}" />
+            <div class="tb-hint">Rear tire width</div>
+          </div>
+        </div>
+        <div class="tb-field-row">
+          <div class="tb-field">
+            <label for="tpTire">胎型</label>
+            <select id="tpTire">
+              ${Object.entries(TP_TIRE).map(([k,v]) => `<option value="${k}"${def.tire===k?' selected':''}>${v.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="tb-field">
+            <label for="tpSurface">路面</label>
+            <select id="tpSurface">
+              ${Object.entries(TP_SURFACE).map(([k,v]) => `<option value="${k}"${def.surface===k?' selected':''}>${v.label}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="tb-field">
+          <label for="tpRear%">后轮配重 <span class="tb-field-sub" id="tpRearPctLabel">${def.rearPct}%</span></label>
+          <input id="tpRear%" type="range" min="45" max="60" step="1" value="${def.rearPct}" class="tb-range" />
+          <div class="tb-hint">典型 公路 55 · 耐力 57 · TT 58</div>
+        </div>
+      </div>
+      <div class="tb-press" id="tpOut"></div>
+    `;
+
+    const inRider   = container.querySelector('#tpRider');
+    const inBike    = container.querySelector('#tpBike');
+    const inFront   = container.querySelector('#tpFront');
+    const inRear    = container.querySelector('#tpRear');
+    const inTire    = container.querySelector('#tpTire');
+    const inSurface = container.querySelector('#tpSurface');
+    const inRearPct = container.querySelector('#tpRear\\%');
+    const lblPct    = container.querySelector('#tpRearPctLabel');
+    const out       = container.querySelector('#tpOut');
+
+    function compute() {
+      const riderKg = parseFloat(inRider.value);
+      const bikeKg  = parseFloat(inBike.value);
+      const frontMm = parseFloat(inFront.value);
+      const rearMm  = parseFloat(inRear.value);
+      const tire    = inTire.value;
+      const surface = inSurface.value;
+      const rearPct = parseInt(inRearPct.value, 10);
+      lblPct.textContent = `${rearPct}% / 前 ${100-rearPct}%`;
+
+      const ok = [riderKg, bikeKg, frontMm, rearMm].every(v => isFinite(v) && v > 0);
+      if (!ok) {
+        out.innerHTML = `<div class="tb-zones-empty">填写体重、车重、前后胎宽以查看胎压</div>`;
+        return;
+      }
+      const front = tpCalc({ riderKg, bikeKg, widthMm: frontMm, tire, surface, rearPct: 100 - rearPct });
+      const rear  = tpCalc({ riderKg, bikeKg, widthMm: rearMm,  tire, surface, rearPct });
+      const row = (label, res, color) => `
+        <div class="tb-press-row" style="--press-color:${color}">
+          <div class="tb-press-lab">${label}</div>
+          <div class="tb-press-num">
+            <span class="tb-press-psi">${res.psi.toFixed(0)} <em>psi</em></span>
+            <span class="tb-press-bar">${res.bar.toFixed(1)} bar</span>
+          </div>
+          <div class="tb-press-meta">分担 ${res.loadKg.toFixed(1)} kg</div>
+        </div>
+      `;
+      out.innerHTML = row('前胎', front, '#4fd6ff') + row('后胎', rear, '#ff7a3a') +
+        `<div class="tb-press-note">此为起始值参考，按路面感受和舒适度 ±5% 微调。</div>`;
+    }
+
+    function persist() {
+      try {
+        localStorage.setItem(LS_TP, JSON.stringify({
+          riderKg: parseFloat(inRider.value) || 70,
+          bikeKg:  parseFloat(inBike.value) || 9,
+          frontMm: parseFloat(inFront.value) || 30,
+          rearMm:  parseFloat(inRear.value) || 30,
+          tire:    inTire.value,
+          surface: inSurface.value,
+          rearPct: parseInt(inRearPct.value, 10) || 55,
+        }));
+      } catch(_) {}
+    }
+
+    [inRider, inBike, inFront, inRear, inTire, inSurface, inRearPct].forEach(el => {
+      el.addEventListener('input', () => { compute(); persist(); });
+      el.addEventListener('change', () => { compute(); persist(); });
+    });
+    compute();
+  }
+
   // ---- registry: add new tools here ----
   const TOOLS = [
     {
@@ -1432,6 +1747,13 @@ window.addEventListener('drop', (e) => {
       desc: 'Karvonen',
       icon: `<svg viewBox="0 0 24 24"><path d="M3 13h4l2-4 3 8 2-5 2 2h5"/></svg>`,
       render: renderHRZones,
+    },
+    {
+      id: 'tire-pressure',
+      name: '真空胎胎压',
+      desc: 'SILCA SPPC',
+      icon: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg>`,
+      render: renderTirePressure,
     },
     // ← future tools get appended here
   ];
@@ -1482,6 +1804,9 @@ window.addEventListener('drop', (e) => {
   }
 
   openBtn.addEventListener('click', openModal);
+  // upload-screen toolbox button: opens the same modal before any file is loaded
+  const upBtn = document.getElementById('upToolboxBtn');
+  if (upBtn) upBtn.addEventListener('click', openModal);
   closeBtn.addEventListener('click', closeModal);
   backBtn.addEventListener('click', renderGrid);
   overlay.addEventListener('click', (e) => {
